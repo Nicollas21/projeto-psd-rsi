@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-
+#!/usr/bin/env python
+import pika
 import sys
 import pcap, dpkt, re
 
@@ -44,7 +45,7 @@ class ClassificaPkt():
                 tamanho = len(eth)
                 tupla = (tamanho,ts,"eth","ip","tcp",p[0])
                 self.enviar_pkt(tupla)
-                cnt[p[0]] += 1
+                self.cnt[p[0]] += 1
                 found = True
         if (not found):
             self.cnt["noClass"] += 1
@@ -62,9 +63,9 @@ class ClassificaPkt():
             self.cnt["noClass"] += 1
         
     def classificar_protocol(self, protocols):
-        nPkts=0
-        for ts, pkt in pcap.pcap():
-            nPkts += 1
+        
+        for ts, pkt in pcap.pcap('test-capture.pcap'):
+            
             
             eth = dpkt.ethernet.Ethernet(pkt) #extraindo dados do pacote
             ip = eth.data
@@ -80,13 +81,38 @@ class ClassificaPkt():
             else:
                     self.cNonIP += 1
 
-            if (nPkts == self.maxPkts):
-                   break
             
         for p in self.cnt.items():
             print(p[0]+" Pkts:"+str(p[1]))
         print("Non IP Pkts:"+str(self.cNonIP))
 
     def enviar_pkt(self,tupla):
-        print tupla
-    
+        #print tupla
+
+        tupla = str(tupla)
+        tupla = tupla.replace(" ","")
+        tupla = tupla.replace("(","")
+        tupla = tupla.replace(")","")
+        tupla = tupla.replace("''","")
+        teste = tupla.split(',')
+        nome_protocolo = str(teste[5].replace("'",""))
+        #print teste[5].replace("'","")
+        
+        credentials = pika.PlainCredentials('server', 'server123')
+        connection = pika.BlockingConnection(pika.ConnectionParameters(
+               '172.16.205.153', 5672, 'grupo1', credentials))
+        channel = connection.channel()
+
+        channel.exchange_declare(exchange='topic_logs',
+                         type='topic')
+
+        routing_key = nome_protocolo if len(teste) > 1 else 'anonymous.info'
+        print routing_key
+        message = str(teste) or 'Hello World!'
+        channel.basic_publish(exchange='topic_logs',
+                      routing_key=routing_key,
+                      body=message)
+        print " [x] Sent %r:%r" % (routing_key, message)
+        connection.close()
+            
+        
