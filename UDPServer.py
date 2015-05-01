@@ -16,6 +16,7 @@ while 1:
         if message.upper() == "EXIT":
             modifiedMessage = message.upper()
             serverSocket.sendto(modifiedMessage, clientAddress)
+            ""
             break
         else:
             print(clientAddress)
