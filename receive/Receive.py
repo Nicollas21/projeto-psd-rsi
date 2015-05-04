@@ -35,16 +35,17 @@ def callback(ch, method, properties, body):
     size = size[2:-3]
     time = tupla[1]
     time = time[2:-3]
+    
     pacote = Pacote(method.routing_key, size, time)
     
     analise = Analise()
-    analise.adicionaLista(pacote)
+    analise.adicionarLista(pacote)
        
-    channel.basic_consume(callback,
+channel.basic_consume(callback,
                   queue=queue_name,
                   no_ack=True)
              
-    channel.start_consuming()
+channel.start_consuming()
 
         
         
