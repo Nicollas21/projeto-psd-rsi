@@ -9,7 +9,7 @@ class Analise:
         self.lista_pacotes = []
 
     #adiciona cada objeto do pacote na lista.
-    def adicionar_lista(self, pacote):
+    def adicionarLista(self, pacote):
         self.lista_pacotes.append(pacote)
     
     #calcula o total de aplicacoes que passaram na fila.
@@ -23,14 +23,18 @@ class Analise:
         
     #dados a respeito do protocolo Bittorrent.
     def dadosBittorrent(self):
+        total = 0
         bittorrent_count = 0 
         bittorrent_tamanho = 0
         for p in self.lista_pacotes:
+            total += 1
             if (p.getTipo() == "bittorrent"):
                 bittorrent_count += 1
-                bittorrent_tamanho += p.getTamanho()
+                bittorrent_tamanho += float(p.getTamanho())
         
-        print (bittorrent_tamaho/bittorrent_count)
+        print "BITTORRENT"
+        print "Tamanho Medio dos Pacotes: %d " % float(bittorrent_tamanho/bittorrent_count)
+        print "Percentual da Aplicacao: %d " % ((bittorrent_count/total)*100)  
                 
         
     #dados do protocolo DHCP.
@@ -40,11 +44,12 @@ class Analise:
         dhcp_tamanho = 0
         for p in self.lista_pacotes:
             total += 1
-            if (p.getTipo() == "ssdp"):
+            if (p.getTipo() == "dhcp"):
                 dhcp_count += 1
                 dhcp_tamanho += float(p.getTamanho())
+        
         print "DHCP"
-        print "Tamanho Medio dos Pacotes: %d " % float(dhcp_tamanho/ssl_count)
+        print "Tamanho Medio dos Pacotes: %d " % float(dhcp_tamanho/dhcp_count)
         print "Percentual da Aplicacao: %d " % ((dhcp_count/total)*100)  
     
             
@@ -57,9 +62,10 @@ class Analise:
             if (p.getTipo() == "http"):
                 http_count += 1
                 http_tamanho += float(p.getTamanho())
+        
         print "HTTP"
         print "Tamanho Medio dos Pacotes: %d " % float(http_tamanho/http_count)
-        print "Percentual da Aplicacao: %d " %((http_count/total)*100)
+        print "Percentual da Aplicacao: %d " % ((http_count/total)*100)
 
     #dados do protocolo SSDP.
     def dadosSsdp(self):
@@ -71,6 +77,7 @@ class Analise:
             if (p.getTipo() == "ssdp"):
                 ssdp_count += 1
                 ssdp_tamanho += float(p.getTamanho())
+       
         print "SSDP"
         print "Tamanho Medio dos Pacotes: %d " % float(ssdp_tamanho/ssdp_count)
         print "Percentual da Aplicacao: %d " % ((ssdp_count/total)*100)  
@@ -82,9 +89,10 @@ class Analise:
         ssh_tamanho = 0
         for p in self.lista_pacotes:
             total += 1
-            if (p.getTipo() == "ssdp"):
+            if (p.getTipo() == "ssh"):
                 ssh_count += 1
                 ssh_tamanho += float(p.getTamanho())
+        
         print "SSH"
         print "Tamanho Medio dos Pacotes: %d " % float(ssh_tamanho/ssh_count)
         print "Percentual da Aplicacao: %d " % ((ssh_count/total)*100)  
@@ -96,9 +104,10 @@ class Analise:
         ssl_tamanho = 0
         for p in self.lista_pacotes:
             total += 1
-            if (p.getTipo() == "ssdp"):
+            if (p.getTipo() == "ssl"):
                 ssl_count += 1
                 ssl_tamanho += float(p.getTamanho())
+        
         print "SSL"
         print "Tamanho Medio dos Pacotes: %d " % float(ssl_tamanho/ssl_count)
         print "Percentual da Aplicacao: %d " % ((ssl_count/total)*100)  
@@ -110,9 +119,10 @@ class Analise:
         unknown_tamanho = 0
         for p in self.lista_pacotes:
             total += 1
-            if (p.getTipo() == "ssdp"):
+            if (p.getTipo() == "unknown"):
                 unknown_count += 1
                 unknown_tamanho += float(p.getTamanho())
+        
         print "UNKNOWN"
         print "Tamanho Medio dos Pacotes: %d " % float(unknown_tamanho/unknown_count)
         print "Percentual da Aplicacao: %d " % ((unknown_count/total)*100)  

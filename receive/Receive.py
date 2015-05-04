@@ -1,8 +1,9 @@
 #!/usr/bin/env python
-
-from Pacote import *
 import pika
 import sys
+from Pacote import *
+from Analise import *
+
 
 credentials = pika.PlainCredentials('server', 'server123')
 connection = pika.BlockingConnection(pika.ConnectionParameters(
@@ -31,22 +32,19 @@ def callback(ch, method, properties, body):
     #separatedPackage(method, body)
     tupla = body.split(',')
     size = tupla[0]
-    size = size[1:]
+    size = size[2:-3]
     time = tupla[1]
+    time = time[2:-3]
     pacote = Pacote(method.routing_key, size, time)
+    
+    analise = Analise()
+    analise.adicionaLista(pacote)
        
     channel.basic_consume(callback,
                   queue=queue_name,
                   no_ack=True)
              
     channel.start_consuming()
-    
-'''    def separatedPackage(method, body):
-        tupla = body.split(',')
-        size = tupla[0]
-        size = size[1:]
-        time = tupla[1]
-        
-        pacote = Pacote(method.routing_key, size, time)'''
+
         
         
