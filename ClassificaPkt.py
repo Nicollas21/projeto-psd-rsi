@@ -51,7 +51,7 @@ class ClassificaPkt():
                 found = True
         if (not found):
             self.cnt["unknown"] += 1
-            tupla = "unknown","tcp","sem info"
+            tupla = tamanho,ts,"eth","ip","tcp","unknown"
             self.modifier_tupla(tupla)
 
     def get_protocol_trans_udp(self,app,eth,ts):
@@ -65,7 +65,8 @@ class ClassificaPkt():
                 found = True
         if (not found):
             self.cnt["unknown"] += 1
-            tupla = "unknown","udp","sem info"
+            tupla = tamanho,ts,"eth","ip","udp","unknown"
+
             self.modifier_tupla(tupla)
         
     def classificar_protocol(self, protocols,msg):
@@ -87,7 +88,8 @@ class ClassificaPkt():
                                 
                 else:
                         self.cNonIP += 1
-                        tupla = "unknown","sem info"
+			tamanho = len(eth)
+                        tupla = tamanho,ts,"eth","unknown","unknown","unknown"
                         self.modifier_tupla(tupla)
 
                 #if (nPkts == self.maxPkts):
@@ -111,7 +113,7 @@ class ClassificaPkt():
             teste = tupla.split(',')
             nome_protocolo = str(teste[5].replace("'",""))
             print nome_protocolo
-            #self.envia_tupla(nome_protocolo,teste)
+            self.envia_tupla(nome_protocolo,teste)
         else:
             tupla = str(tupla)
             tupla = tupla.replace(" ","")
@@ -120,7 +122,7 @@ class ClassificaPkt():
             teste = tupla.split(',')
             nome_protocolo = str(teste[0].replace("'",""))
             print nome_protocolo
-            #self.envia_tupla(nome_protocolo,teste)
+            self.envia_tupla(nome_protocolo,teste)
             
     def envia_tupla(nome_protocolo, msg):
         
