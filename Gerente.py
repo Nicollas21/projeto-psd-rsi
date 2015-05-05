@@ -1,8 +1,9 @@
-# -*- coding: cp1252 -*-
+# -*- coding: utf-8 -*-
 import socket
 
 def printMenu():
         print "\n*****************************"
+        print "* 0 - Iniciar Capturas      *"
         print "* 1 - Identificar Coletores *"
         print "* 2 - Suspender Captura     *"
         print "* 3 - Reiniciar Captura     *"
@@ -33,18 +34,22 @@ bsock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 bsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 bsock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 bsock.bind((BROADCAST_LISTEN,BROADCAST_PORT_RECV))
-bsock.settimeout(5)
+bsock.settimeout(3)
+
 
 while (laco == True):
 	printMenu();
-	data = raw_input('Escolha uma opÁ„o: ');
-	
-	if data == '1':
+        data = raw_input('Escolha uma op√ß√£o: ');
+
+        if data == '0':
+                bsock.sendto('iniciar_captura', (BROADCAST_SEND, BROADCAST_PORT_SEND));
+
+	elif data == '1':
 		coletore = {};
 		bsock.sendto('identificacao', (BROADCAST_SEND, BROADCAST_PORT_SEND));
 		try:
-			while True :
-				message , address = bsock.recvfrom(AMOUNT_BYTES)
+                        while True :
+                                message , address = bsock.recvfrom(AMOUNT_BYTES)
 				coletores[message] = format(address[0]);
 		except socket.timeout:
 			printColetores(coletores);
@@ -72,4 +77,4 @@ while (laco == True):
 		bsock.close();
 		print ("Bye");
 	else:
-		print ("OpÁ„o Inv·lida.\n");
+		print ("Op√ß√£o Inv√°lida.\n");
