@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from CapturaPkt import *
 from ClassificaPkt import *
+from ReceiveCommand import *
+from threading import Thread
 
-#x = CapturaPkt()
-#x.getPkt_range(20)
+
+k = ReceiveCommand()
 
 y = ClassificaPkt()
 bit = y.get_arquivo('l7-pat/bittorrent.pat')
@@ -15,4 +16,10 @@ ssh = y.get_arquivo('l7-pat/ssh.pat')
 ssl = y.get_arquivo('l7-pat/ssl.pat')
 protocol = y.assinar_protocols(bit,dhcp,http,ssdp,ssh,ssl)
 
-y.classificar_protocol(protocol)
+
+t1 = Thread(target=k.startListen,args=())
+t1.start()
+"""
+t2 = Thread(target=y.classificar_protocol,args=(protocol,"",))
+t2.start()
+"""
