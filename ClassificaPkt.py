@@ -4,8 +4,6 @@ import pika
 import sys
 import pcap, dpkt, re
 
-
-
 class ClassificaPkt():
     protocols = {"bittorrent":"","dhcp":"","http":"","ssdp":"","ssh":"","ssl":""}
 
@@ -40,68 +38,51 @@ class ClassificaPkt():
         
         self.protocols = {"bittorrent":bittorrent,"dhcp":dhcp,"http":http,"ssdp":ssdp,"ssh":ssh,"ssl":ssl}
 
-    def get_protocol_trans_tcp(self,app,eth,ts):
+    def get_protocol_trans(self,app,eth,ts,transp):
         found = False
+        tamanho = len(eth)
         for p in self.protocols.items():
             if p[1].search(app):
-                tamanho = len(eth)
-                tupla = tamanho,ts,"eth","ip","tcp",p[0]
+                tupla = tamanho,ts,"eth","ip",transp,p[0]
                 self.modifier_tupla(tupla)
                 self.cnt[p[0]] += 1
                 found = True
-        if (not found):
-            self.cnt["unknown"] += 1
-            tupla = tamanho,ts,"eth","ip","tcp","unknown"
-            self.modifier_tupla(tupla)
-
-    def get_protocol_trans_udp(self,app,eth,ts):
-        found = False
-        for p in self.protocols.items():
-            if p[1].search(app):
-                tamanho = len(eth)
-                tupla = tamanho,ts,"eth","ip","udp",p[0]
+            if (not found):
+                self.cnt["unknown"] += 1
+                tupla = tamanho,ts,"eth","ip",transp,"unknown"
                 self.modifier_tupla(tupla)
-                self.cnt[p[0]] += 1
-                found = True
-        if (not found):
-            self.cnt["unknown"] += 1
-            tupla = tamanho,ts,"eth","ip","udp","unknown"
-
-            self.modifier_tupla(tupla)
         
-    def classificar_protocol(self, protocols,msg):
+    def classificar_protocol(self):
         #nPkts=0
-        if msg != "stop":
-            for ts, pkt in pcap.pcap():
-                #nPkts += 1
+        
+        for ts, pkt in pcap.pcap("test-capture.pcap"):
+            #nPkts += 1
                 
-                eth = dpkt.ethernet.Ethernet(pkt) #extraindo dados do pacote
-                ip = eth.data
-                if isinstance(ip,dpkt.ip.IP):
-                        transp = ip.data
-                        if isinstance(transp,dpkt.tcp.TCP):
-                            app = transp.data.lower()
-                            self.get_protocol_trans_tcp(app,eth,ts)
-                        elif isinstance(transp,dpkt.udp.UDP):
-                            app = transp.data.lower()
-                            self.get_protocol_trans_udp(app,eth,ts)
+            eth = dpkt.ethernet.Ethernet(pkt) #extraindo dados do pacote
+            ip = eth.data
+            if isinstance(ip,dpkt.ip.IP):
+                    transp = ip.data
+                    if isinstance(transp,dpkt.tcp.TCP):
+                        app = transp.data.lower()
+                        tcp = "tcp"
+                        self.get_protocol_trans(app,eth,ts,tcp)
+                    elif isinstance(transp,dpkt.udp.UDP):
+                        app = transp.data.lower()
+                        udp = "udp"
+                        self.get_protocol_trans(app,eth,ts,udp)
                                 
-                else:
-                        self.cNonIP += 1
-			tamanho = len(eth)
-                        tupla = tamanho,ts,"eth","unknown","unknown","unknown"
-                        self.modifier_tupla(tupla)
+            else:
+                    self.cNonIP += 1
+		    tamanho = len(eth)
+                    tupla = tamanho,ts,"eth","unknown","unknown","unknown"
+                    self.modifier_tupla(tupla)
 
-                #if (nPkts == self.maxPkts):
-                        #break
+            #if (nPkts == self.maxPkts):
+                    #break
                 
-            for p in self.cnt.items():
-                print(p[0]+" Pkts:"+str(p[1]))
-            print("Non IP Pkts:"+str(self.cNonIP))
-        elif msg == "start":
-            classificar_protocol(protocols,"")
-        else:
-            print "parou"
+        for p in self.cnt.items():
+            print(p[0]+" Pkts:"+str(p[1]))
+        print("Non IP Pkts:"+str(self.cNonIP))
 
     def modifier_tupla(self,tupla):
         #print type(tupla[0])
@@ -112,19 +93,11 @@ class ClassificaPkt():
             tupla = tupla.replace(")","")
             teste = tupla.split(',')
             nome_protocolo = str(teste[5].replace("'",""))
-            print nome_protocolo
-            self.envia_tupla(nome_protocolo,teste)
-        else:
-            tupla = str(tupla)
-            tupla = tupla.replace(" ","")
-            tupla = tupla.replace("(","")
-            tupla = tupla.replace(")","")
-            teste = tupla.split(',')
-            nome_protocolo = str(teste[0].replace("'",""))
-            print nome_protocolo
-            self.envia_tupla(nome_protocolo,teste)
+            #print nome_protocolo
+            print teste
+            #self.envia_tupla(nome_protocolo,teste)
             
-    def envia_tupla(nome_protocolo, msg):
+    def envia_tupla(self,nome_protocolo,msg):
         
         credentials = pika.PlainCredentials('server', 'server123')
         connection = pika.BlockingConnection(pika.ConnectionParameters(
